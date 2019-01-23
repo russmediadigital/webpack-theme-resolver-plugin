@@ -1,0 +1,22 @@
+{
+  "name": "webpack-theme-resolver-plugin-example",
+  "version": "1.0.0",
+  "description": "Example project for webpack-theme-resolver-plugin",
+  "main": "index.js",
+  "author": "Dominic Gebhart <dominic.gebhart@russmedia.com",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build1": "webpack --config webpack.config.js --verbose",
+    "build2": "webpack --config webpack.config2.js --verbose",
+    "test": "npm run build1 && npm run build2 && echo 'run script 1' && node dist/script.js && echo 'run script 2' && node dist/script2.js",
+    "test1": "npm run build1 && echo 'run script 1' && node dist/script.js"
+  },
+  "devDependencies": {
+    "webpack": "^4.29.0",
+    "webpack-cli": "^3.2.1"
+  },
+  "dependencies": {
+    "webpack-testing-example-comp": "file:../../webpack-testing-example-comp"
+  }
+}

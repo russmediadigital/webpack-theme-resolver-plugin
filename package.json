@@ -1,0 +1,49 @@
+{
+  "name": "webpack-theme-resolver-plugin",
+  "version": "1.0.0",
+  "description": "Webpack Resolver plugin to resolve files through directory chain with a package fallback at compile time.",
+  "main": "dist/index.js",
+  "repository": "https://github.com/russmediadigital/webpack-theme-resolver-plugin",
+  "author": "Dominic Gebhart <dominic.gebhart@russmedia.com>",
+  "license": "MIT",
+  "keywords": [
+    "webpack",
+    "resolve",
+    "plugin",
+    "fallback",
+    "webpack plugin",
+    "theme",
+    "module",
+    "package"
+  ],
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "gulp build",
+    "watch": "gulp watch"
+  },
+  "types": "definitions/index.d.ts",
+  "directories": {
+    "lib": "dist",
+    "example": "example"
+  },
+  "peerDependencies": {
+    "webpack": ">= 4.0.0"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "enhanced-resolve": "^4.1.0",
+    "resolve": "^1.9.0"
+  },
+  "devDependencies": {
+    "@types/bluebird": "^3.5.11",
+    "@types/node": "^8.0.30",
+    "@types/webpack": "^4.4.24",
+    "gulp": "^3.9.1",
+    "gulp-cli": "^1.4.0",
+    "gulp-typescript": "^3.2.2",
+    "gulp-watch": "^4.3.11",
+    "merge2": "^1.2.0",
+    "tslint": "^5.7.0",
+    "typescript": "^3.2.4"
+  }
+}

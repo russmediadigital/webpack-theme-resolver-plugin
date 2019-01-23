@@ -1,0 +1,24 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "strictNullChecks": true,
+    "outDir": "dist",
+    "declaration": true,
+    "lib": ["ES6"],
+    "moduleResolution": "node",
+    "newLine": "lf",
+    "pretty": true,
+    "removeComments": false,
+    "stripInternal": true,
+    "target": "ES6",
+    "strict": true
+  },
+
+  "files": [
+    "src/index.ts"
+  ]
+}
