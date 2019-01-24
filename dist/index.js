@@ -7,7 +7,7 @@ const moduleresolver = require('resolve');
 const existsAsync = (path) => new Promise((resolve) => {
     fs.exists(path, resolve);
 });
-class FallbackResolverPlugin {
+class ThemeResolverPlugin {
     constructor(options) {
         this.options = options;
         this.pathRegex = [];
@@ -19,10 +19,10 @@ class FallbackResolverPlugin {
     }
     apply(resolver) {
         const target = resolver.ensureHook("module");
-        resolver.hooks.module.tapAsync("MyResolverPlugin", (request, resolveContext, callback) => {
+        resolver.hooks.module.tapAsync("ThemeResolverPlugin", (request, resolveContext, callback) => {
             this.pathRegex.forEach((reg, x) => {
                 if (request.request.match(reg)) {
-                    this.choosenResolver = Object.assign(FallbackResolverPlugin.defaultOptions, this.options[x]);
+                    this.choosenResolver = Object.assign(ThemeResolverPlugin.defaultOptions, this.options[x]);
                 }
             });
             if (Object.keys(this.choosenResolver).length) {
@@ -103,11 +103,11 @@ class FallbackResolverPlugin {
         return this.cache[reqPath];
     }
 }
-FallbackResolverPlugin.defaultOptions = {
+ThemeResolverPlugin.defaultOptions = {
     directories: [],
     prefix: "fallback",
     module: "",
     singlePackage: true,
 };
-exports.FallbackResolverPlugin = FallbackResolverPlugin;
-module.exports = FallbackResolverPlugin;
+exports.ThemeResolverPlugin = ThemeResolverPlugin;
+module.exports = ThemeResolverPlugin;

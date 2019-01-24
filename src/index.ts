@@ -9,28 +9,28 @@ const existsAsync: (path: string) => Promise<boolean> = (path: string) => new Pr
     }
 );
 
-export interface IFallbackResolverPluginOptions {
+export interface IThemeResolverPluginOptions {
     directories?: string[];
     prefix?: string;
     module?: string;
     singlePackage?: boolean;
 }
 
-export class FallbackResolverPlugin {
-    public static defaultOptions: IFallbackResolverPluginOptions = {
+export class ThemeResolverPlugin {
+    public static defaultOptions: IThemeResolverPluginOptions = {
         directories: [],
         prefix: "fallback",
         module: "",
         singlePackage: true,
     };
 
-    private options: IFallbackResolverPluginOptions[];
+    private options: IThemeResolverPluginOptions[];
     private pathRegex: RegExp[];
 
     private cache: { [key: string]: Promise<string> };
-    private choosenResolver: IFallbackResolverPluginOptions;
+    private choosenResolver: IThemeResolverPluginOptions;
 
-    public constructor(options: IFallbackResolverPluginOptions[]) {
+    public constructor(options: IThemeResolverPluginOptions[]) {
         this.options = options;
         this.pathRegex = [];
         this.options.forEach(res => {
@@ -42,10 +42,10 @@ export class FallbackResolverPlugin {
 
     public apply(resolver: any) {
         const target = resolver.ensureHook("module");
-        resolver.hooks.module.tapAsync("MyResolverPlugin", (request: any, resolveContext: any, callback: () => void) => {
+        resolver.hooks.module.tapAsync("ThemeResolverPlugin", (request: any, resolveContext: any, callback: () => void) => {
             this.pathRegex.forEach((reg, x) => {
                 if (request.request.match(reg)) {
-                    this.choosenResolver = Object.assign(FallbackResolverPlugin.defaultOptions, this.options[x]);
+                    this.choosenResolver = Object.assign(ThemeResolverPlugin.defaultOptions, this.options[x]);
                 }
             });
             if (Object.keys(this.choosenResolver).length) {
@@ -141,4 +141,4 @@ export class FallbackResolverPlugin {
     }
 }
 
-module.exports = FallbackResolverPlugin;
+module.exports = ThemeResolverPlugin;
