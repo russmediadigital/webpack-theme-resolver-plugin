@@ -9,7 +9,7 @@ export declare class ThemeResolverPlugin {
     private options;
     private pathRegex;
     private cache;
-    private choosenResolver;
+    private chosenResolver;
     constructor(options: IThemeResolverPluginOptions[]);
     apply(resolver: any): void;
     resolveComponentPath(reqPath: string): Promise<string>;

@@ -15,7 +15,7 @@ class ThemeResolverPlugin {
             this.pathRegex.push(new RegExp(`^${res.prefix}/`));
         });
         this.cache = {};
-        this.choosenResolver = {};
+        this.chosenResolver = {};
     }
     apply(resolver) {
         resolver.typ;
@@ -23,11 +23,11 @@ class ThemeResolverPlugin {
         resolver.hooks.module.tapAsync("ThemeResolverPlugin", (request, resolveContext, callback) => {
             this.pathRegex.forEach((reg, x) => {
                 if (request.request.match(reg)) {
-                    this.choosenResolver = Object.assign(ThemeResolverPlugin.defaultOptions, this.options[x]);
+                    this.chosenResolver = Object.assign(ThemeResolverPlugin.defaultOptions, this.options[x]);
                 }
             });
-            if (Object.keys(this.choosenResolver).length) {
-                const req = request.request.replace(new RegExp(`^${this.choosenResolver.prefix}/`), "");
+            if (Object.keys(this.chosenResolver).length) {
+                const req = request.request.replace(new RegExp(`^${this.chosenResolver.prefix}/`), "");
                 this.resolveComponentPath(req).then((resolvedComponentPath) => {
                     const obj = {
                         directory: request.directory,
@@ -57,8 +57,8 @@ class ThemeResolverPlugin {
     }
     resolveComponentPath(reqPath) {
         if (!this.cache[reqPath]) {
-            if (this.choosenResolver.directories) {
-                this.cache[reqPath] = Promise.filter(this.choosenResolver.directories.map((dir) => path.resolve(path.resolve(dir), reqPath)), (item) => existsAsync(item).then((exists) => exists).catch(() => false)).any();
+            if (this.chosenResolver.directories) {
+                this.cache[reqPath] = Promise.filter(this.chosenResolver.directories.map((dir) => path.resolve(path.resolve(dir), reqPath)), (item) => existsAsync(item).then((exists) => exists).catch(() => false)).any();
             }
             else {
                 this.cache[reqPath] = Promise.reject("No Fallback directories!");
@@ -67,9 +67,9 @@ class ThemeResolverPlugin {
         return this.cache[reqPath];
     }
     resolveComponentModule(reqPath) {
-        if (this.choosenResolver.module) {
-            if (this.choosenResolver.singlePackage) {
-                let tempReqPath = 'node_modules/' + this.choosenResolver.module + '/src/' + reqPath;
+        if (this.chosenResolver.module) {
+            if (this.chosenResolver.singlePackage) {
+                let tempReqPath = 'node_modules/' + this.chosenResolver.module + '/src/' + reqPath;
                 this.cache[reqPath] = new Promise(function (resolve, reject) {
                     try {
                         let res = path.resolve(process.cwd(), tempReqPath);
@@ -83,7 +83,7 @@ class ThemeResolverPlugin {
                 });
             }
             else {
-                let dep = this.choosenResolver.module + '.' + reqPath.split('.')[0];
+                let dep = this.chosenResolver.module + '.' + reqPath.split('.')[0];
                 this.cache[reqPath] = new Promise(function (resolve, reject) {
                     try {
                         let res = moduleresolver.sync(dep, { basedir: process.cwd() });
