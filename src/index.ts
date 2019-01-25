@@ -28,7 +28,7 @@ export class ThemeResolverPlugin {
     private pathRegex: RegExp[];
 
     private cache: { [key: string]: Promise<string> };
-    private choosenResolver: IThemeResolverPluginOptions;
+    private chosenResolver: IThemeResolverPluginOptions;
 
     public constructor(options: IThemeResolverPluginOptions[]) {
         this.options = options;
@@ -37,7 +37,7 @@ export class ThemeResolverPlugin {
             this.pathRegex.push(new RegExp(`^${res.prefix}/`));
         });
         this.cache = {};
-        this.choosenResolver = {};
+        this.chosenResolver = {};
     }
 
     public apply(resolver: any) {
@@ -46,11 +46,11 @@ export class ThemeResolverPlugin {
         resolver.hooks.module.tapAsync("ThemeResolverPlugin", (request: any, resolveContext: any, callback: () => void) => {
             this.pathRegex.forEach((reg, x) => {
                 if (request.request.match(reg)) {
-                    this.choosenResolver = Object.assign(ThemeResolverPlugin.defaultOptions, this.options[x]);
+                    this.chosenResolver = Object.assign(ThemeResolverPlugin.defaultOptions, this.options[x]);
                 }
             });
-            if (Object.keys(this.choosenResolver).length) {
-                const req = request.request.replace(new RegExp(`^${this.choosenResolver.prefix}/`), "");
+            if (Object.keys(this.chosenResolver).length) {
+                const req = request.request.replace(new RegExp(`^${this.chosenResolver.prefix}/`), "");
                 this.resolveComponentPath(req).then(
                     (resolvedComponentPath: string) => {
                         const obj = {
@@ -88,9 +88,9 @@ export class ThemeResolverPlugin {
 
     public resolveComponentPath(reqPath: string): Promise<string> {
         if (!this.cache[reqPath]) {
-            if (this.choosenResolver.directories) {
+            if (this.chosenResolver.directories) {
                 this.cache[reqPath] = Promise.filter(
-                    this.choosenResolver.directories.map((dir: string) => path.resolve(path.resolve(dir), reqPath)),
+                    this.chosenResolver.directories.map((dir: string) => path.resolve(path.resolve(dir), reqPath)),
                     (item: string) => existsAsync(item).then((exists: boolean) => exists).catch(() => false),
                 ).any();
             } else {
@@ -101,9 +101,9 @@ export class ThemeResolverPlugin {
     }
 
     public resolveComponentModule(reqPath: string): Promise<string> {
-        if (this.choosenResolver.module) {
-            if (this.choosenResolver.singlePackage) {
-                let tempReqPath = 'node_modules/' + this.choosenResolver.module + '/src/' + reqPath;
+        if (this.chosenResolver.module) {
+            if (this.chosenResolver.singlePackage) {
+                let tempReqPath = 'node_modules/' + this.chosenResolver.module + '/src/' + reqPath;
                 this.cache[reqPath] = new Promise(
                     function (resolve: any, reject: any) {
                         try {
@@ -111,13 +111,13 @@ export class ThemeResolverPlugin {
                             if (res) {
                                 resolve(res);
                             }
-                            } catch(e) {
-                            reject("Module is not resolvable");
-                            }
+                        } catch(e) {
+                        reject("Module is not resolvable");
+                        }
                     }
                 )
             } else {
-                let dep = this.choosenResolver.module + '.' + reqPath.split('.')[0];
+                let dep = this.chosenResolver.module + '.' + reqPath.split('.')[0];
                 this.cache[reqPath] = new Promise(
                     function (resolve: any, reject: any) {
                         try {
@@ -125,9 +125,9 @@ export class ThemeResolverPlugin {
                             if (res) {
                                 resolve(res);
                             }
-                            } catch(e) {
-                            reject("Module is not resolvable");
-                            }
+                        } catch(e) {
+                        reject("Module is not resolvable");
+                        }
                     }
                 )
             }
