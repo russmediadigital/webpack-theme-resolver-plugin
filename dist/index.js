@@ -18,6 +18,7 @@ class ThemeResolverPlugin {
         this.choosenResolver = {};
     }
     apply(resolver) {
+        resolver.typ;
         const target = resolver.ensureHook("module");
         resolver.hooks.module.tapAsync("ThemeResolverPlugin", (request, resolveContext, callback) => {
             this.pathRegex.forEach((reg, x) => {
@@ -34,7 +35,7 @@ class ThemeResolverPlugin {
                         query: request.query,
                         request: resolvedComponentPath,
                     };
-                    resolver.doResolve("resolve", obj, `resolve ${request.request} to ${resolvedComponentPath}`, callback);
+                    resolver.doResolve(resolver.hooks.resolve, obj, `resolve ${request.request} to ${resolvedComponentPath}`, resolveContext, callback);
                 }, () => {
                     this.resolveComponentModule(req).then((resolvedComponentModulePath) => {
                         const obj = {
@@ -43,7 +44,7 @@ class ThemeResolverPlugin {
                             query: request.query,
                             request: resolvedComponentModulePath,
                         };
-                        resolver.doResolve("resolve", obj, `resolve ${request.request} to ${resolvedComponentModulePath}`, callback);
+                        resolver.doResolve(resolver.hooks.resolve, obj, `resolve ${request.request} to ${resolvedComponentModulePath}`, resolveContext, callback);
                     }, () => {
                         callback();
                     });
