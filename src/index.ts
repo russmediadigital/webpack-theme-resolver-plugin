@@ -50,7 +50,6 @@ export class ThemeResolverPlugin {
             });
             if (Object.keys(this.choosenResolver).length) {
                 const req = request.request.replace(new RegExp(`^${this.choosenResolver.prefix}/`), "");
-                console.log(new RegExp(`^${this.choosenResolver.prefix}/`));
                 this.resolveComponentPath(req).then(
                     (resolvedComponentPath: string) => {
                         const obj = {
@@ -108,7 +107,6 @@ export class ThemeResolverPlugin {
                     function (resolve: any, reject: any) {
                         try {
                             let res =  path.resolve(process.cwd(), tempReqPath)
-                            console.log(res);
                             if (res) {
                                 resolve(res);
                             }

@@ -27,7 +27,6 @@ class ThemeResolverPlugin {
             });
             if (Object.keys(this.choosenResolver).length) {
                 const req = request.request.replace(new RegExp(`^${this.choosenResolver.prefix}/`), "");
-                console.log(new RegExp(`^${this.choosenResolver.prefix}/`));
                 this.resolveComponentPath(req).then((resolvedComponentPath) => {
                     const obj = {
                         directory: request.directory,
@@ -73,7 +72,6 @@ class ThemeResolverPlugin {
                 this.cache[reqPath] = new Promise(function (resolve, reject) {
                     try {
                         let res = path.resolve(process.cwd(), tempReqPath);
-                        console.log(res);
                         if (res) {
                             resolve(res);
                         }

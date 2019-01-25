@@ -25,4 +25,4 @@ gulp.task('watch', () => {
     });
 });
 
-gulp.task('default', ['watch']);
+gulp.task('default', gulp.series('watch'));
