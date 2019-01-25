@@ -1,7 +1,7 @@
-import printHello from '#test-fallback#/print-hello.js';
-import printTest from '#test-fallback#/print-test.js';
-import printExtern from '#test-fallback#/print-ex.js';
-import printGoodbye from '#second-fallback#/print-goodbye.js';
+import printHello from 'example-components/print-hello.js';
+import printTest from 'example-components/print-test.js';
+import printExtern from 'example-components/print-ex.js';
+import printGoodbye from 'second-comp-package/print-goodbye.js';
 
 printHello();
 printTest();

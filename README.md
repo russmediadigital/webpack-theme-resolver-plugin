@@ -1,9 +1,9 @@
 # webpack-theme-resolver-plugin
-Webpack Theme Resolver plugin to resolve files through a directory chain with a package fallback at compile time.
+Webpack Theme Resolver plugin to resolve files through a directory chain with a package fallback at compile time.  
 For Webpack 4+
 
 ## Description
-This is a Resolver-Plugin for webpack. It enables resolving files by looking up multiple directories in a chain with an fallback package. So for example you got a default-theme list component witch got a ListEntry Component and you only want to overwrite the ListEntry Component in a new theme. Or the list component is part of an own component library, you can easily overwrite the his child components from the local project.
+This is a Resolver-Plugin for webpack. It enables resolving files by looking up multiple directories in a chain with an fallback package. So for example you got a default-theme list component which got a ListEntry Component and you only want to overwrite the ListEntry Component in a new theme. Or the list component is part of an own component library, you can easily overwrite his child components from the local project.
 
 Here an Example with vue and 2 local themes (it works with any file ending):
 
@@ -23,11 +23,11 @@ Here an Example with vue and 2 local themes (it works with any file ending):
 ## Installation
 Install this plugin via npm alongside with [`webpack`](https://www.npmjs.com/package/webpack).
 ```bash
-npm install --save-dev webpack-theme-resovler-plugin
+npm install --save-dev webpack-theme-resolver-plugin
 ```
 
 ## Config
-```
+```js
 // webpack.config.js
 
 const path = require('path');

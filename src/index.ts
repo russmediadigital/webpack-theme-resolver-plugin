@@ -34,7 +34,7 @@ export class ThemeResolverPlugin {
         this.options = options;
         this.pathRegex = [];
         this.options.forEach(res => {
-            this.pathRegex.push(new RegExp(`^#${res.prefix}#/`));
+            this.pathRegex.push(new RegExp(`^${res.prefix}/`));
         });
         this.cache = {};
         this.choosenResolver = {};
@@ -49,8 +49,8 @@ export class ThemeResolverPlugin {
                 }
             });
             if (Object.keys(this.choosenResolver).length) {
-                const req = request.request.replace(new RegExp(`^#${this.choosenResolver.prefix}#/`), "");
-                
+                const req = request.request.replace(new RegExp(`^${this.choosenResolver.prefix}/`), "");
+                console.log(new RegExp(`^${this.choosenResolver.prefix}/`));
                 this.resolveComponentPath(req).then(
                     (resolvedComponentPath: string) => {
                         const obj = {

@@ -14,7 +14,7 @@ module.exports = {
             new FallbackResolverPlugin(
                 [
                     {
-                        prefix: 'test-fallback',
+                        prefix: 'example-components',
                         directories: [
                             path.resolve(__dirname, 'js/dir2'),
                             path.resolve(__dirname, 'js/dir1')
@@ -23,7 +23,7 @@ module.exports = {
                         singlePackage: false
                     },
                     {
-                        prefix: 'second-fallback',
+                        prefix: 'second-comp-package',
                         directories: [
                             path.resolve(__dirname, 'js/dir3'),
                             path.resolve(__dirname, 'js/dir2')
