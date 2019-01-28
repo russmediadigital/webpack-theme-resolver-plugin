@@ -1,4 +1,4 @@
-const FallbackResolverPlugin = require('../dist/index');
+const ThemeResolverPlugin = require('../../dist/index');
 const path = require('path');
 
 module.exports = {
@@ -11,7 +11,7 @@ module.exports = {
     },
     resolve: {
         plugins: [
-            new FallbackResolverPlugin(
+            new ThemeResolverPlugin(
                 [
                     {
                         prefix: 'example-components',
@@ -19,8 +19,8 @@ module.exports = {
                             path.resolve(__dirname, 'js/dir2'),
                             path.resolve(__dirname, 'js/dir1')
                         ],
-                        module: 'webpack-testing-example-comp',
-                        singlePackage: false
+                        module: 'test-components',
+                        singlePackage: true
                     },
                     {
                         prefix: 'second-comp-package',
@@ -28,7 +28,7 @@ module.exports = {
                             path.resolve(__dirname, 'js/dir3'),
                             path.resolve(__dirname, 'js/dir2')
                         ],
-                        module: 'webpack-testing-example-comp',
+                        module: 'test-components',
                         singlePackage: true
                     }
                 ]

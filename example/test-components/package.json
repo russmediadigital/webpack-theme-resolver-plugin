@@ -1,0 +1,11 @@
+{
+  "name": "test-components",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/print-ex.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT"
+}
