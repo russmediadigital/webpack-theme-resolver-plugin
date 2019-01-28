@@ -99,7 +99,3 @@ Test from Dir 2
 Goodbye from Dir 3
 Hello from external package
 ```
-
-
-## Have Fun
-> Feel free to fork it and modify it for your own use
