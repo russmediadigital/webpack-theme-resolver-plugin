@@ -69,7 +69,7 @@ class ThemeResolverPlugin {
     resolveComponentModule(reqPath) {
         if (this.chosenResolver.module) {
             if (this.chosenResolver.singlePackage) {
-                let tempReqPath = 'node_modules/' + this.chosenResolver.module + '/src/' + reqPath;
+                let tempReqPath = 'node_modules/' + this.chosenResolver.module + this.chosenResolver.modulePath + '/' + reqPath;
                 this.cache[reqPath] = new Promise(function (resolve, reject) {
                     try {
                         let res = path.resolve(process.cwd(), tempReqPath);
@@ -108,6 +108,7 @@ ThemeResolverPlugin.defaultOptions = {
     prefix: "fallback",
     module: "",
     singlePackage: true,
+    modulePath: "/src"
 };
 exports.ThemeResolverPlugin = ThemeResolverPlugin;
 module.exports = ThemeResolverPlugin;

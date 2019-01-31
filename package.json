@@ -1,7 +1,7 @@
 {
   "name": "webpack-theme-resolver-plugin",
-  "version": "1.0.0",
-  "description": "Webpack Resolver plugin to resolve files through directory chain with a package fallback at compile time.",
+  "version": "1.0.2",
+  "description": "Webpack Theme Resolver plugin to resolve files through directory chain with a package fallback at compile time.",
   "main": "dist/index.js",
   "repository": "https://github.com/russmediadigital/webpack-theme-resolver-plugin",
   "author": "Dominic Gebhart <dominic.gebhart@russmedia.com>",

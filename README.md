@@ -70,6 +70,7 @@ module.exports = {
 | directories   |   yes    |         | The Directories to look through |
 | module        |    no    |         | The Fallback Component to search for the component |
 | singlePackage |    no    |  true   | Are all components in one package or one package per component |
+| modulePath    |    no    |  /src   | The Path in the Module to look up |
 
 The `directories` will be scanned in the order provided, falling back to `module` if no matching file is found.
 

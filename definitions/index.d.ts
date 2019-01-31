@@ -3,6 +3,7 @@ export interface IThemeResolverPluginOptions {
     prefix?: string;
     module?: string;
     singlePackage?: boolean;
+    modulePath?: string;
 }
 export declare class ThemeResolverPlugin {
     static defaultOptions: IThemeResolverPluginOptions;
