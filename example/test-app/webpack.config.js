@@ -20,7 +20,8 @@ module.exports = {
                             path.resolve(__dirname, 'js/dir1')
                         ],
                         module: 'test-components',
-                        singlePackage: true
+                        singlePackage: true,
+                        modulePath: '/src2'
                     },
                     {
                         prefix: 'second-comp-package',

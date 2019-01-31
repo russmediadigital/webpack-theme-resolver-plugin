@@ -14,6 +14,7 @@ export interface IThemeResolverPluginOptions {
     prefix?: string;
     module?: string;
     singlePackage?: boolean;
+    modulePath?: string;
 }
 
 export class ThemeResolverPlugin {
@@ -22,6 +23,7 @@ export class ThemeResolverPlugin {
         prefix: "fallback",
         module: "",
         singlePackage: true,
+        modulePath: "/src"
     };
 
     private options: IThemeResolverPluginOptions[];
@@ -103,7 +105,7 @@ export class ThemeResolverPlugin {
     public resolveComponentModule(reqPath: string): Promise<string> {
         if (this.chosenResolver.module) {
             if (this.chosenResolver.singlePackage) {
-                let tempReqPath = 'node_modules/' + this.chosenResolver.module + '/src/' + reqPath;
+                let tempReqPath = 'node_modules/' + this.chosenResolver.module + this.chosenResolver.modulePath + '/' + reqPath;
                 this.cache[reqPath] = new Promise(
                     function (resolve: any, reject: any) {
                         try {
