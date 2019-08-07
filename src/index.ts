@@ -45,6 +45,7 @@ export class ThemeResolverPlugin {
     public apply(resolver: any) {
         resolver.typ
         const target = resolver.ensureHook("module");
+
         resolver.hooks.module.tapAsync("ThemeResolverPlugin", (request: any, resolveContext: any, callback: () => void) => {
             this.pathRegex.forEach((reg, x) => {
                 if (request.request.match(reg)) {
@@ -77,11 +78,11 @@ export class ThemeResolverPlugin {
                             () => {
                                 callback();
                             }
-                        );
+                        ).catch(() => {
+                            // do nothing
+                        });
                     },
                 );
-                
-                
             } else {
                 callback();
             }
@@ -96,7 +97,7 @@ export class ThemeResolverPlugin {
                     (item: string) => existsAsync(item).then((exists: boolean) => exists).catch(() => false),
                 ).any();
             } else {
-                this.cache[reqPath] = Promise.reject("No Fallback directories!");
+                this.cache[reqPath] = Promise.reject(new Error("No Fallback directories!"));
             }
         }
         return this.cache[reqPath];
@@ -114,7 +115,7 @@ export class ThemeResolverPlugin {
                                 resolve(res);
                             }
                         } catch(e) {
-                        reject("Module is not resolvable");
+                        reject(new Error("Module is not resolvable"));
                         }
                     }
                 )
@@ -128,15 +129,13 @@ export class ThemeResolverPlugin {
                                 resolve(res);
                             }
                         } catch(e) {
-                        reject("Module is not resolvable");
+                        reject(new Error("Module is not resolvable"));
                         }
                     }
                 )
             }
-            
-            
         } else {
-            this.cache[reqPath] = Promise.reject("No Fallback Module defined");
+            this.cache[reqPath] = Promise.reject(new Error("No Fallback Module defined"));
         }
         return this.cache[reqPath];
     }
