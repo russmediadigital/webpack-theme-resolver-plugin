@@ -3,22 +3,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Promise = require("bluebird");
 const fs = require("fs");
 const path = require("path");
-const moduleresolver = require('resolve');
-const existsAsync = (path) => new Promise((resolve) => {
-    fs.exists(path, resolve);
+const moduleresolver = require("resolve");
+const existsAsync = (filePath) => new Promise((resolve) => {
+    fs.exists(filePath, resolve);
 });
 class ThemeResolverPlugin {
     constructor(options) {
         this.options = options;
         this.pathRegex = [];
-        this.options.forEach(res => {
+        this.options.forEach((res) => {
             this.pathRegex.push(new RegExp(`^${res.prefix}/`));
         });
         this.cache = {};
         this.chosenResolver = {};
     }
     apply(resolver) {
-        resolver.typ;
         const target = resolver.ensureHook("module");
         resolver.hooks.module.tapAsync("ThemeResolverPlugin", (request, resolveContext, callback) => {
             this.pathRegex.forEach((reg, x) => {
@@ -48,7 +47,6 @@ class ThemeResolverPlugin {
                     }, () => {
                         callback();
                     }).catch(() => {
-                        // do nothing
                     });
                 });
             }
@@ -71,10 +69,14 @@ class ThemeResolverPlugin {
     resolveComponentModule(reqPath) {
         if (this.chosenResolver.module) {
             if (this.chosenResolver.singlePackage) {
-                let tempReqPath = 'node_modules/' + this.chosenResolver.module + this.chosenResolver.modulePath + '/' + reqPath;
-                this.cache[reqPath] = new Promise(function (resolve, reject) {
+                const tempReqPath = "node_modules/"
+                    + this.chosenResolver.module
+                    + this.chosenResolver.modulePath
+                    + "/"
+                    + reqPath;
+                this.cache[reqPath] = new Promise((resolve, reject) => {
                     try {
-                        let res = path.resolve(process.cwd(), tempReqPath);
+                        const res = path.resolve(process.cwd(), tempReqPath);
                         if (res) {
                             resolve(res);
                         }
@@ -85,10 +87,10 @@ class ThemeResolverPlugin {
                 });
             }
             else {
-                let dep = this.chosenResolver.module + '.' + reqPath.split('.')[0];
-                this.cache[reqPath] = new Promise(function (resolve, reject) {
+                const dep = this.chosenResolver.module + "." + reqPath.split(".")[0];
+                this.cache[reqPath] = new Promise((resolve, reject) => {
                     try {
-                        let res = moduleresolver.sync(dep, { basedir: process.cwd() });
+                        const res = moduleresolver.sync(dep, { basedir: process.cwd() });
                         if (res) {
                             resolve(res);
                         }
@@ -107,10 +109,10 @@ class ThemeResolverPlugin {
 }
 ThemeResolverPlugin.defaultOptions = {
     directories: [],
-    prefix: "fallback",
     module: "",
+    modulePath: "/src",
+    prefix: "fallback",
     singlePackage: true,
-    modulePath: "/src"
 };
 exports.ThemeResolverPlugin = ThemeResolverPlugin;
 module.exports = ThemeResolverPlugin;

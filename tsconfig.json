@@ -8,11 +8,10 @@
     "strictNullChecks": true,
     "outDir": "dist",
     "declaration": true,
-    "lib": ["ES6"],
+    "lib": ["es6"],
     "moduleResolution": "node",
     "newLine": "lf",
     "pretty": true,
-    "removeComments": false,
     "stripInternal": true,
     "target": "ES6",
     "strict": true
