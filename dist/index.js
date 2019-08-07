@@ -47,8 +47,6 @@ class ThemeResolverPlugin {
                         resolver.doResolve(resolver.hooks.resolve, obj, `resolve ${request.request} to ${resolvedComponentModulePath}`, resolveContext, callback);
                     }, () => {
                         callback();
-                    }).catch(() => {
-                        // do nothing
                     });
                 });
             }
@@ -63,7 +61,7 @@ class ThemeResolverPlugin {
                 this.cache[reqPath] = Promise.filter(this.chosenResolver.directories.map((dir) => path.resolve(path.resolve(dir), reqPath)), (item) => existsAsync(item).then((exists) => exists).catch(() => false)).any();
             }
             else {
-                this.cache[reqPath] = Promise.reject(new Error("No Fallback directories!"));
+                this.cache[reqPath] = Promise.reject("No Fallback directories!");
             }
         }
         return this.cache[reqPath];
@@ -80,7 +78,7 @@ class ThemeResolverPlugin {
                         }
                     }
                     catch (e) {
-                        reject(new Error("Module is not resolvable"));
+                        reject("Module is not resolvable");
                     }
                 });
             }
@@ -94,13 +92,13 @@ class ThemeResolverPlugin {
                         }
                     }
                     catch (e) {
-                        reject(new Error("Module is not resolvable"));
+                        reject("Module is not resolvable");
                     }
                 });
             }
         }
         else {
-            this.cache[reqPath] = Promise.reject(new Error("No Fallback Module defined"));
+            this.cache[reqPath] = Promise.reject("No Fallback Module defined");
         }
         return this.cache[reqPath];
     }
