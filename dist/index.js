@@ -15,7 +15,7 @@ class ThemeResolverPlugin {
         const target = resolver.ensureHook("resolved");
         resolver.getHook("module")
             .tapAsync("ThemeResolverPlugin", (request, resolveContext, callback) => {
-            let chosenResolver = this.getResolver(request);
+            const chosenResolver = this.getResolver(request);
             if (chosenResolver) {
                 const req = request.request.replace(new RegExp(`^${chosenResolver.prefix}/`), "");
                 const resolvedPath = this.resolveComponentPath(req, chosenResolver.directories);
@@ -37,7 +37,7 @@ class ThemeResolverPlugin {
             return this.cache[reqPath];
         }
         const dirs = directories.map((dir) => path.resolve(path.resolve(dir), reqPath));
-        const resolvedPath = dirs.find((path) => fs.existsSync(path));
+        const resolvedPath = dirs.find((pathName) => fs.existsSync(pathName));
         if (resolvedPath) {
             this.cache[reqPath] = resolvedPath;
         }
