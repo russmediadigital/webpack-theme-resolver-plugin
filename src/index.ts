@@ -31,19 +31,19 @@ export class ThemeResolverPlugin {
 
         resolver.getHook("module")
         .tapAsync("ThemeResolverPlugin", (request: any, resolveContext: any, callback: () => void) => {
-                let chosenResolver = this.getResolver(request);
+                const chosenResolver = this.getResolver(request);
 
                 if (chosenResolver) {
                     const req = request.request.replace(new RegExp(`^${chosenResolver.prefix}/`), "");
-                    const resolvedPath = this.resolveComponentPath(req, chosenResolver.directories)
+                    const resolvedPath = this.resolveComponentPath(req, chosenResolver.directories);
 
                     if (!resolvedPath) {
-                        return callback()
+                        return callback();
                     }
 
                     const obj = Object.assign({}, request, {
                         path: resolvedPath,
-                    })
+                    });
 
                     resolver.doResolve(
                         target,
@@ -62,22 +62,21 @@ export class ThemeResolverPlugin {
     public resolveComponentPath(reqPath: string, directories: string[]): string | undefined {
 
         if (this.cache[reqPath] !== undefined) {
-            return this.cache[reqPath]
+            return this.cache[reqPath];
         }
 
-        const dirs = directories.map((dir: string) => path.resolve(path.resolve(dir), reqPath))
+        const dirs = directories.map((dir: string) => path.resolve(path.resolve(dir), reqPath));
 
-        const resolvedPath = dirs.find((path: string) => fs.existsSync(path))
+        const resolvedPath = dirs.find((pathName: string) => fs.existsSync(pathName));
 
         if (resolvedPath) {
-            this.cache[reqPath] = resolvedPath
+            this.cache[reqPath] = resolvedPath;
         }
 
-        return this.cache[reqPath]
+        return this.cache[reqPath];
     }
 
-    private getResolver(request: any): IThemeResolverPluginOptions | void
-    {
+    private getResolver(request: any): IThemeResolverPluginOptions | void {
         let resolver;
 
         this.pathRegex.forEach((reg, x) => {
@@ -86,7 +85,7 @@ export class ThemeResolverPlugin {
             }
         });
 
-        return resolver
+        return resolver;
     }
 }
 
