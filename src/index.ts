@@ -1,36 +1,21 @@
-const Promise = require("bluebird");
-const fs = require("fs");
-const path = require("path");
-const moduleresolver = require("resolve");
-
-const existsAsync: (path: string) => Promise<boolean> = (filePath: string) => new Promise(
-    (resolve: (result: boolean) => void) => {
-        fs.exists(filePath, resolve);
-    },
-);
+import * as fs from "fs";
+import * as path from "path";
 
 export interface IThemeResolverPluginOptions {
-    directories?: string[];
-    prefix?: string;
-    module?: string;
-    singlePackage?: boolean;
-    modulePath?: string;
+    directories: string[];
+    prefix: string;
 }
 
 export class ThemeResolverPlugin {
     public static defaultOptions: IThemeResolverPluginOptions = {
         directories: [],
-        module: "",
-        modulePath: "/src",
         prefix: "fallback",
-        singlePackage: true,
     };
 
     private options: IThemeResolverPluginOptions[];
     private pathRegex: RegExp[];
 
-    private cache: { [key: string]: Promise<string> };
-    private chosenResolver: IThemeResolverPluginOptions;
+    private cache: { [key: string]: string | undefined };
 
     public constructor(options: IThemeResolverPluginOptions[]) {
         this.options = options;
@@ -39,62 +24,33 @@ export class ThemeResolverPlugin {
             this.pathRegex.push(new RegExp(`^${res.prefix}/`));
         });
         this.cache = {};
-        this.chosenResolver = {};
     }
 
     public apply(resolver: any) {
-        const target = resolver.ensureHook("module");
+        const target = resolver.ensureHook("resolved");
 
-        resolver.hooks.module.tapAsync(
-            "ThemeResolverPlugin",
-            (request: any, resolveContext: any, callback: () => void) => {
-                this.pathRegex.forEach((reg, x) => {
-                    if (request.request.match(reg)) {
-                        this.chosenResolver = Object.assign(ThemeResolverPlugin.defaultOptions, this.options[x]);
+        resolver.getHook("module")
+        .tapAsync("ThemeResolverPlugin", (request: any, resolveContext: any, callback: () => void) => {
+                const chosenResolver = this.getResolver(request);
+
+                if (chosenResolver) {
+                    const req = request.request.replace(new RegExp(`^${chosenResolver.prefix}/`), "");
+                    const resolvedPath = this.resolveComponentPath(req, chosenResolver.directories);
+
+                    if (!resolvedPath) {
+                        return callback();
                     }
-                });
-                if (Object.keys(this.chosenResolver).length) {
-                    const req = request.request.replace(new RegExp(`^${this.chosenResolver.prefix}/`), "");
-                    this.resolveComponentPath(req).then(
-                        (resolvedComponentPath: string) => {
-                            const obj = {
-                                directory: request.directory,
-                                path: request.path,
-                                query: request.query,
-                                request: resolvedComponentPath,
-                            };
-                            resolver.doResolve(
-                                resolver.hooks.resolve,
-                                obj,
-                                `resolve ${request.request} to ${resolvedComponentPath}`,
-                                resolveContext,
-                                callback,
-                            );
-                        },
-                        () => {
-                            this.resolveComponentModule(req).then(
-                                (resolvedComponentModulePath: string) => {
-                                    const obj = {
-                                        directory: request.directory,
-                                        path: request.path,
-                                        query: request.query,
-                                        request: resolvedComponentModulePath,
-                                    };
-                                    resolver.doResolve(
-                                        resolver.hooks.resolve,
-                                        obj,
-                                        `resolve ${request.request} to ${resolvedComponentModulePath}`,
-                                        resolveContext,
-                                        callback,
-                                    );
-                                },
-                                () => {
-                                    callback();
-                                },
-                            ).catch(() => {
-                                // do nothing
-                            });
-                        },
+
+                    const obj = Object.assign({}, request, {
+                        path: resolvedPath,
+                    });
+
+                    resolver.doResolve(
+                        target,
+                        obj,
+                        `resolve ${request.request} to ${resolvedPath}`,
+                        resolveContext,
+                        callback,
                     );
                 } else {
                     callback();
@@ -103,60 +59,33 @@ export class ThemeResolverPlugin {
         );
     }
 
-    public resolveComponentPath(reqPath: string): Promise<string> {
-        if (!this.cache[reqPath]) {
-            if (this.chosenResolver.directories) {
-                this.cache[reqPath] = Promise.filter(
-                    this.chosenResolver.directories.map((dir: string) => path.resolve(path.resolve(dir), reqPath)),
-                    (item: string) => existsAsync(item).then((exists: boolean) => exists).catch(() => false),
-                ).any();
-            } else {
-                this.cache[reqPath] = Promise.reject(new Error("No Fallback directories!"));
-            }
+    public resolveComponentPath(reqPath: string, directories: string[]): string | undefined {
+
+        if (this.cache[reqPath] !== undefined) {
+            return this.cache[reqPath];
         }
+
+        const dirs = directories.map((dir: string) => path.resolve(path.resolve(dir), reqPath));
+
+        const resolvedPath = dirs.find((pathName: string) => fs.existsSync(pathName));
+
+        if (resolvedPath) {
+            this.cache[reqPath] = resolvedPath;
+        }
+
         return this.cache[reqPath];
     }
 
-    public resolveComponentModule(reqPath: string): Promise<string> {
-        if (this.chosenResolver.module) {
-            if (this.chosenResolver.singlePackage) {
-                const tempReqPath = "node_modules/"
-                                    + this.chosenResolver.module
-                                    + this.chosenResolver.modulePath
-                                    + "/"
-                                    + reqPath;
+    private getResolver(request: any): IThemeResolverPluginOptions | void {
+        let resolver;
 
-                this.cache[reqPath] = new Promise(
-                    (resolve: any, reject: any) => {
-                        try {
-                            const res =  path.resolve(process.cwd(), tempReqPath);
-                            if (res) {
-                                resolve(res);
-                            }
-                        } catch (e) {
-                        reject(new Error("Module is not resolvable"));
-                        }
-                    },
-                );
-            } else {
-                const dep = this.chosenResolver.module + "." + reqPath.split(".")[0];
-                this.cache[reqPath] = new Promise(
-                    (resolve: any, reject: any) => {
-                        try {
-                            const res = moduleresolver.sync(dep, {basedir: process.cwd()});
-                            if (res) {
-                                resolve(res);
-                            }
-                        } catch (e) {
-                        reject(new Error("Module is not resolvable"));
-                        }
-                    },
-                );
+        this.pathRegex.forEach((reg, x) => {
+            if (request.request.match(reg)) {
+                resolver = Object.assign({}, ThemeResolverPlugin.defaultOptions, this.options[x]);
             }
-        } else {
-            this.cache[reqPath] = Promise.reject(new Error("No Fallback Module defined"));
-        }
-        return this.cache[reqPath];
+        });
+
+        return resolver;
     }
 }
 

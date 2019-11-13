@@ -1,12 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Promise = require("bluebird");
 const fs = require("fs");
 const path = require("path");
-const moduleresolver = require("resolve");
-const existsAsync = (filePath) => new Promise((resolve) => {
-    fs.exists(filePath, resolve);
-});
 class ThemeResolverPlugin {
     constructor(options) {
         this.options = options;
@@ -15,104 +10,52 @@ class ThemeResolverPlugin {
             this.pathRegex.push(new RegExp(`^${res.prefix}/`));
         });
         this.cache = {};
-        this.chosenResolver = {};
     }
     apply(resolver) {
-        const target = resolver.ensureHook("module");
-        resolver.hooks.module.tapAsync("ThemeResolverPlugin", (request, resolveContext, callback) => {
-            this.pathRegex.forEach((reg, x) => {
-                if (request.request.match(reg)) {
-                    this.chosenResolver = Object.assign(ThemeResolverPlugin.defaultOptions, this.options[x]);
+        const target = resolver.ensureHook("resolved");
+        resolver.getHook("module")
+            .tapAsync("ThemeResolverPlugin", (request, resolveContext, callback) => {
+            let chosenResolver = this.getResolver(request);
+            if (chosenResolver) {
+                const req = request.request.replace(new RegExp(`^${chosenResolver.prefix}/`), "");
+                const resolvedPath = this.resolveComponentPath(req, chosenResolver.directories);
+                if (!resolvedPath) {
+                    return callback();
                 }
-            });
-            if (Object.keys(this.chosenResolver).length) {
-                const req = request.request.replace(new RegExp(`^${this.chosenResolver.prefix}/`), "");
-                this.resolveComponentPath(req).then((resolvedComponentPath) => {
-                    const obj = {
-                        directory: request.directory,
-                        path: request.path,
-                        query: request.query,
-                        request: resolvedComponentPath,
-                    };
-                    resolver.doResolve(resolver.hooks.resolve, obj, `resolve ${request.request} to ${resolvedComponentPath}`, resolveContext, callback);
-                }, () => {
-                    this.resolveComponentModule(req).then((resolvedComponentModulePath) => {
-                        const obj = {
-                            directory: request.directory,
-                            path: request.path,
-                            query: request.query,
-                            request: resolvedComponentModulePath,
-                        };
-                        resolver.doResolve(resolver.hooks.resolve, obj, `resolve ${request.request} to ${resolvedComponentModulePath}`, resolveContext, callback);
-                    }, () => {
-                        callback();
-                    }).catch(() => {
-                    });
+                const obj = Object.assign({}, request, {
+                    path: resolvedPath,
                 });
+                resolver.doResolve(target, obj, `resolve ${request.request} to ${resolvedPath}`, resolveContext, callback);
             }
             else {
                 callback();
             }
         });
     }
-    resolveComponentPath(reqPath) {
-        if (!this.cache[reqPath]) {
-            if (this.chosenResolver.directories) {
-                this.cache[reqPath] = Promise.filter(this.chosenResolver.directories.map((dir) => path.resolve(path.resolve(dir), reqPath)), (item) => existsAsync(item).then((exists) => exists).catch(() => false)).any();
-            }
-            else {
-                this.cache[reqPath] = Promise.reject(new Error("No Fallback directories!"));
-            }
+    resolveComponentPath(reqPath, directories) {
+        if (this.cache[reqPath] !== undefined) {
+            return this.cache[reqPath];
+        }
+        const dirs = directories.map((dir) => path.resolve(path.resolve(dir), reqPath));
+        const resolvedPath = dirs.find((path) => fs.existsSync(path));
+        if (resolvedPath) {
+            this.cache[reqPath] = resolvedPath;
         }
         return this.cache[reqPath];
     }
-    resolveComponentModule(reqPath) {
-        if (this.chosenResolver.module) {
-            if (this.chosenResolver.singlePackage) {
-                const tempReqPath = "node_modules/"
-                    + this.chosenResolver.module
-                    + this.chosenResolver.modulePath
-                    + "/"
-                    + reqPath;
-                this.cache[reqPath] = new Promise((resolve, reject) => {
-                    try {
-                        const res = path.resolve(process.cwd(), tempReqPath);
-                        if (res) {
-                            resolve(res);
-                        }
-                    }
-                    catch (e) {
-                        reject(new Error("Module is not resolvable"));
-                    }
-                });
+    getResolver(request) {
+        let resolver;
+        this.pathRegex.forEach((reg, x) => {
+            if (request.request.match(reg)) {
+                resolver = Object.assign({}, ThemeResolverPlugin.defaultOptions, this.options[x]);
             }
-            else {
-                const dep = this.chosenResolver.module + "." + reqPath.split(".")[0];
-                this.cache[reqPath] = new Promise((resolve, reject) => {
-                    try {
-                        const res = moduleresolver.sync(dep, { basedir: process.cwd() });
-                        if (res) {
-                            resolve(res);
-                        }
-                    }
-                    catch (e) {
-                        reject(new Error("Module is not resolvable"));
-                    }
-                });
-            }
-        }
-        else {
-            this.cache[reqPath] = Promise.reject(new Error("No Fallback Module defined"));
-        }
-        return this.cache[reqPath];
+        });
+        return resolver;
     }
 }
+exports.ThemeResolverPlugin = ThemeResolverPlugin;
 ThemeResolverPlugin.defaultOptions = {
     directories: [],
-    module: "",
-    modulePath: "/src",
     prefix: "fallback",
-    singlePackage: true,
 };
-exports.ThemeResolverPlugin = ThemeResolverPlugin;
 module.exports = ThemeResolverPlugin;
