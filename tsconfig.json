@@ -14,10 +14,13 @@
     "pretty": true,
     "stripInternal": true,
     "target": "ES6",
-    "strict": true
+    "strict": true,
+    "types": [
+      "@types/webpack"
+    ]
   },
 
   "files": [
     "src/index.ts"
-  ]
+  ],
 }
