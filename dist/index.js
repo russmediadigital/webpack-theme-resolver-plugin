@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ThemeResolverPlugin = void 0;
 const fs = require("fs");
 const path = require("path");
 class ThemeResolverPlugin {
@@ -18,7 +19,21 @@ class ThemeResolverPlugin {
             const chosenResolver = this.getResolver(request);
             if (chosenResolver) {
                 const req = request.request.replace(new RegExp(`^${chosenResolver.prefix}/`), "");
-                const resolvedPath = this.resolveComponentPath(req, chosenResolver.directories);
+                const ext = path.extname(req);
+                const tryFiles = [];
+                if (ext === '') {
+                    ['ts'].map(ext => tryFiles.push(req + '.' + ext));
+                }
+                tryFiles.push(req);
+                let resolvedPath;
+                tryFiles.some(filePath => {
+                    const result = this.resolveComponentPath(filePath, chosenResolver.directories);
+                    if (result && result !== request.context.issuer) {
+                        resolvedPath = result;
+                        return true;
+                    }
+                    return false;
+                });
                 if (!resolvedPath) {
                     return callback();
                 }

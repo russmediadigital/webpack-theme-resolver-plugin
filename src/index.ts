@@ -26,7 +26,7 @@ export class ThemeResolverPlugin {
         this.cache = {};
     }
 
-    public apply(resolver: any) {
+    public apply(resolver: any /* EnhancedResolve.Resolver */) {
         const target = resolver.ensureHook("resolved");
 
         resolver.getHook("module")
@@ -35,7 +35,25 @@ export class ThemeResolverPlugin {
 
                 if (chosenResolver) {
                     const req = request.request.replace(new RegExp(`^${chosenResolver.prefix}/`), "");
-                    const resolvedPath = this.resolveComponentPath(req, chosenResolver.directories);
+                    const ext = path.extname(req)
+                    const tryFiles = []
+
+                    if (ext === '') {
+                        ['ts'].map(ext => tryFiles.push(req + '.' + ext))
+                    }
+
+                    tryFiles.push(req)
+
+                    let resolvedPath
+                    tryFiles.some(filePath => {
+                        const result = this.resolveComponentPath(filePath, chosenResolver.directories)
+
+                        if (result && result !== request.context.issuer) {
+                            resolvedPath = result
+                            return true
+                        }
+                        return false
+                    })
 
                     if (!resolvedPath) {
                         return callback();
