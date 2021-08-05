@@ -1,30 +1,13 @@
 import * as path from "path";
-import { ThemeResolverBase } from "./ThemeResolverBase"
+import {ThemeResolver, ThemeResolverOptions} from '@russmedia/theme-resolver'
 
-export interface IThemeResolverPluginOptions {
-    directories: string[];
-    prefix: string;
-}
+export interface IThemeResolverPluginOptions extends ThemeResolverOptions {}
 
 export class ThemeResolverPlugin {
-    public static defaultOptions: IThemeResolverPluginOptions = {
-        directories: [],
-        prefix: "fallback",
-    };
+    private resolver: ThemeResolver;
 
-    private options: IThemeResolverPluginOptions[];
-    private pathRegex: RegExp[];
-
-    private resolver: ThemeResolverBase;
-
-    public constructor(options: IThemeResolverPluginOptions[]) {
-        this.options = options;
-        this.pathRegex = [];
-        this.options.forEach((res) => {
-            this.pathRegex.push(new RegExp(`^${res.prefix}/`));
-        });
-
-        this.resolver = new ThemeResolverBase(this.pathRegex, this.options)
+    public constructor(options: ThemeResolverOptions[]) {
+        this.resolver = new ThemeResolver(options)
     }
 
     public apply(resolver: any /* EnhancedResolve.Resolver */) {
@@ -78,24 +61,6 @@ export class ThemeResolverPlugin {
                 }
             },
         );
-    }
-
-    public postcssResolve(id: string, baseDir: string, importOptions: any) {
-        const chosenResolver = this.resolver.getResolver(id);
-        if (chosenResolver) {
-            const file = this.resolver.getFileName(id, chosenResolver)
-
-            const result = this.resolver.resolveComponentPath(file, chosenResolver.directories)
-
-            if (!result) {
-                return id
-            }
-
-            return result
-
-        } else {
-            return id
-        }
     }
 }
 

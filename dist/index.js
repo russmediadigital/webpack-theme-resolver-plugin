@@ -2,15 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ThemeResolverPlugin = void 0;
 const path = require("path");
-const ThemeResolverBase_1 = require("./ThemeResolverBase");
+const theme_resolver_1 = require("@russmedia/theme-resolver");
 class ThemeResolverPlugin {
     constructor(options) {
-        this.options = options;
-        this.pathRegex = [];
-        this.options.forEach((res) => {
-            this.pathRegex.push(new RegExp(`^${res.prefix}/`));
-        });
-        this.resolver = new ThemeResolverBase_1.ThemeResolverBase(this.pathRegex, this.options);
+        this.resolver = new theme_resolver_1.ThemeResolver(options);
     }
     apply(resolver) {
         const target = resolver.ensureHook("resolved");
@@ -48,24 +43,6 @@ class ThemeResolverPlugin {
             }
         });
     }
-    postcssResolve(id, baseDir, importOptions) {
-        const chosenResolver = this.resolver.getResolver(id);
-        if (chosenResolver) {
-            const file = this.resolver.getFileName(id, chosenResolver);
-            const result = this.resolver.resolveComponentPath(file, chosenResolver.directories);
-            if (!result) {
-                return id;
-            }
-            return result;
-        }
-        else {
-            return id;
-        }
-    }
 }
 exports.ThemeResolverPlugin = ThemeResolverPlugin;
-ThemeResolverPlugin.defaultOptions = {
-    directories: [],
-    prefix: "fallback",
-};
 module.exports = ThemeResolverPlugin;

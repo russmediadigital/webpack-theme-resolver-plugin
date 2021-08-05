@@ -1,13 +1,8 @@
-export interface IThemeResolverPluginOptions {
-    directories: string[];
-    prefix: string;
+import { ThemeResolverOptions } from '@russmedia/theme-resolver';
+export interface IThemeResolverPluginOptions extends ThemeResolverOptions {
 }
 export declare class ThemeResolverPlugin {
-    static defaultOptions: IThemeResolverPluginOptions;
-    private options;
-    private pathRegex;
     private resolver;
-    constructor(options: IThemeResolverPluginOptions[]);
+    constructor(options: ThemeResolverOptions[]);
     apply(resolver: any): void;
-    postcssResolve(id: string, baseDir: string, importOptions: any): string;
 }
