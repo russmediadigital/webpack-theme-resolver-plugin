@@ -1,11 +1,14 @@
 {
-  "name": "webpack-theme-resolver-plugin",
-  "version": "5.0.0",
+  "name": "@russmedia/theme-resolver-webpack",
+  "version": "4.1.0",
   "description": "Webpack Theme Resolver plugin to resolve files through directory chain with a package fallback at compile time.",
   "main": "dist/index.js",
   "repository": "https://github.com/russmediadigital/webpack-theme-resolver-plugin",
   "author": "Dominic Gebhart <dominic.gebhart@russmedia.com>",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "webpack",
     "resolve",

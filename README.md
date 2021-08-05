@@ -26,13 +26,15 @@ Here an Example with vue and 2 local themes (it works with any file ending):
 ```
 
 ## Installation
+> **WARNING**: This package got renamed for version 4.1 from `webpack-theme-resolver-plugin` to `@russmedia/theme-resolver-webpack`
+
 Install this plugin via npm alongside with [`webpack`](https://www.npmjs.com/package/webpack).
 ```bash
 # for npm
-npm install --save-dev webpack-theme-resolver-plugin
+npm install --save-dev @russmedia/theme-resolver-webpack
 
 # or for yarn
-yarn add -D webpack-theme-resolver-plugin
+yarn add -D @russmedia/theme-resolver-webpack
 ```
 
 ## Config
@@ -40,7 +42,7 @@ yarn add -D webpack-theme-resolver-plugin
 // webpack.config.js
 
 const path = require('path');
-const ThemeResolverPlugin = require('webpack-theme-resolver-plugin')
+const ThemeResolverPlugin = require('@russmedia/theme-resolver-webpack')
 
 module.exports = {
     ...
