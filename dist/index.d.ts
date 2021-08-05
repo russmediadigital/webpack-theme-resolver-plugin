@@ -1,14 +1,7 @@
-export interface IThemeResolverPluginOptions {
-    directories: string[];
-    prefix: string;
-}
+import { ThemeResolverOptions } from '@russmedia/theme-resolver';
+export { ThemeResolverOptions as IThemeResolverPluginOptions };
 export declare class ThemeResolverPlugin {
-    static defaultOptions: IThemeResolverPluginOptions;
-    private options;
-    private pathRegex;
-    private cache;
-    constructor(options: IThemeResolverPluginOptions[]);
+    private resolver;
+    constructor(options: ThemeResolverOptions[]);
     apply(resolver: any): void;
-    resolveComponentPath(reqPath: string, directories: string[]): string | undefined;
-    private getResolver;
 }

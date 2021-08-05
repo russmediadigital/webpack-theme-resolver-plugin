@@ -1,33 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ThemeResolverPlugin = void 0;
-const fs = require("fs");
 const path = require("path");
+const theme_resolver_1 = require("@russmedia/theme-resolver");
 class ThemeResolverPlugin {
     constructor(options) {
-        this.options = options;
-        this.pathRegex = [];
-        this.options.forEach((res) => {
-            this.pathRegex.push(new RegExp(`^${res.prefix}/`));
-        });
-        this.cache = {};
+        this.resolver = new theme_resolver_1.ThemeResolver(options);
     }
     apply(resolver) {
         const target = resolver.ensureHook("resolved");
-        resolver.getHook("module")
+        resolver
+            .getHook("module")
             .tapAsync("ThemeResolverPlugin", (request, resolveContext, callback) => {
-            const chosenResolver = this.getResolver(request);
+            const chosenResolver = this.resolver.getResolver(request.request);
             if (chosenResolver) {
-                const req = request.request.replace(new RegExp(`^${chosenResolver.prefix}/`), "");
-                const ext = path.extname(req);
+                const file = this.resolver.getFileName(request.request, chosenResolver);
+                const extension = path.extname(file);
                 const tryFiles = [];
-                if (ext === '') {
-                    ['ts'].map(ext => tryFiles.push(req + '.' + ext));
+                if (extension === '') {
+                    ['ts'].map(ext => tryFiles.push(file + '.' + ext));
                 }
-                tryFiles.push(req);
+                tryFiles.push(file);
                 let resolvedPath;
                 tryFiles.some(filePath => {
-                    const result = this.resolveComponentPath(filePath, chosenResolver.directories);
+                    const result = this.resolver.resolveComponentPath(filePath, chosenResolver.directories);
                     if (result && result !== request.context.issuer) {
                         resolvedPath = result;
                         return true;
@@ -47,30 +43,6 @@ class ThemeResolverPlugin {
             }
         });
     }
-    resolveComponentPath(reqPath, directories) {
-        if (this.cache[reqPath] !== undefined) {
-            return this.cache[reqPath];
-        }
-        const dirs = directories.map((dir) => path.resolve(path.resolve(dir), reqPath));
-        const resolvedPath = dirs.find((pathName) => fs.existsSync(pathName));
-        if (resolvedPath) {
-            this.cache[reqPath] = resolvedPath;
-        }
-        return this.cache[reqPath];
-    }
-    getResolver(request) {
-        let resolver;
-        this.pathRegex.forEach((reg, x) => {
-            if (request.request.match(reg)) {
-                resolver = Object.assign({}, ThemeResolverPlugin.defaultOptions, this.options[x]);
-            }
-        });
-        return resolver;
-    }
 }
 exports.ThemeResolverPlugin = ThemeResolverPlugin;
-ThemeResolverPlugin.defaultOptions = {
-    directories: [],
-    prefix: "fallback",
-};
 module.exports = ThemeResolverPlugin;
