@@ -1,5 +1,5 @@
-import * as fs from "fs";
 import * as path from "path";
+import { ThemeResolverBase } from "./ThemeResolverBase"
 
 export interface IThemeResolverPluginOptions {
     directories: string[];
@@ -15,7 +15,7 @@ export class ThemeResolverPlugin {
     private options: IThemeResolverPluginOptions[];
     private pathRegex: RegExp[];
 
-    private cache: { [key: string]: string | undefined };
+    private resolver: ThemeResolverBase;
 
     public constructor(options: IThemeResolverPluginOptions[]) {
         this.options = options;
@@ -23,30 +23,33 @@ export class ThemeResolverPlugin {
         this.options.forEach((res) => {
             this.pathRegex.push(new RegExp(`^${res.prefix}/`));
         });
-        this.cache = {};
+
+        this.resolver = new ThemeResolverBase(this.pathRegex, this.options)
     }
 
     public apply(resolver: any /* EnhancedResolve.Resolver */) {
         const target = resolver.ensureHook("resolved");
 
-        resolver.getHook("module")
-        .tapAsync("ThemeResolverPlugin", (request: any, resolveContext: any, callback: () => void) => {
-                const chosenResolver = this.getResolver(request);
+        resolver
+            .getHook("module")
+            .tapAsync("ThemeResolverPlugin", (request: any, resolveContext: any, callback: () => void) => {
+                const chosenResolver = this.resolver.getResolver(request.request);
 
                 if (chosenResolver) {
-                    const req = request.request.replace(new RegExp(`^${chosenResolver.prefix}/`), "");
-                    const ext = path.extname(req)
+                    const file = this.resolver.getFileName(request.request, chosenResolver)
+
+                    const extension = path.extname(file)
                     const tryFiles = []
 
-                    if (ext === '') {
-                        ['ts'].map(ext => tryFiles.push(req + '.' + ext))
+                    if (extension === '') {
+                        ['ts'].map(ext => tryFiles.push(file + '.' + ext))
                     }
 
-                    tryFiles.push(req)
+                    tryFiles.push(file)
 
                     let resolvedPath
                     tryFiles.some(filePath => {
-                        const result = this.resolveComponentPath(filePath, chosenResolver.directories)
+                        const result = this.resolver.resolveComponentPath(filePath, chosenResolver.directories)
 
                         if (result && result !== request.context.issuer) {
                             resolvedPath = result
@@ -77,33 +80,22 @@ export class ThemeResolverPlugin {
         );
     }
 
-    public resolveComponentPath(reqPath: string, directories: string[]): string | undefined {
+    public postcssResolve(id: string, baseDir: string, importOptions: any) {
+        const chosenResolver = this.resolver.getResolver(id);
+        if (chosenResolver) {
+            const file = this.resolver.getFileName(id, chosenResolver)
 
-        if (this.cache[reqPath] !== undefined) {
-            return this.cache[reqPath];
-        }
+            const result = this.resolver.resolveComponentPath(file, chosenResolver.directories)
 
-        const dirs = directories.map((dir: string) => path.resolve(path.resolve(dir), reqPath));
-
-        const resolvedPath = dirs.find((pathName: string) => fs.existsSync(pathName));
-
-        if (resolvedPath) {
-            this.cache[reqPath] = resolvedPath;
-        }
-
-        return this.cache[reqPath];
-    }
-
-    private getResolver(request: any): IThemeResolverPluginOptions | void {
-        let resolver;
-
-        this.pathRegex.forEach((reg, x) => {
-            if (request.request.match(reg)) {
-                resolver = Object.assign({}, ThemeResolverPlugin.defaultOptions, this.options[x]);
+            if (!result) {
+                return id
             }
-        });
 
-        return resolver;
+            return result
+
+        } else {
+            return id
+        }
     }
 }
 
