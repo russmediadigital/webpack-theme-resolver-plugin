@@ -6,9 +6,8 @@ export declare class ThemeResolverPlugin {
     static defaultOptions: IThemeResolverPluginOptions;
     private options;
     private pathRegex;
-    private cache;
+    private resolver;
     constructor(options: IThemeResolverPluginOptions[]);
     apply(resolver: any): void;
-    resolveComponentPath(reqPath: string, directories: string[]): string | undefined;
-    private getResolver;
+    postcssResolve(id: string, baseDir: string, importOptions: any): string;
 }
