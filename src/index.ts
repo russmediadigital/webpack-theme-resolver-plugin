@@ -1,7 +1,7 @@
 import * as path from "path";
 import {ThemeResolver, ThemeResolverOptions} from '@russmedia/theme-resolver'
 
-export interface IThemeResolverPluginOptions extends ThemeResolverOptions {}
+export { ThemeResolverOptions as IThemeResolverPluginOptions }
 
 export class ThemeResolverPlugin {
     private resolver: ThemeResolver;
